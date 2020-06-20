@@ -3,9 +3,24 @@
 int main(int argc, char **argv)
 {
         if (argc != 3) {
-                printf("%s <compressed> <decompressed>\n", argv[0]);
+                printf("%s <file in> <file out>\n", argv[0]);
                 return 0;
         }
+
+	FILE *f;
+
+	f = fopen(argv[1], "rb");
+	if (f == NULL) {
+		printf("%s does not exist!\n", argv[1]);
+		return 0;
+	}
+	fclose(f);
+
+	f = fopen(argv[2], "wb");
+	if (f == NULL) {
+		perror("");
+		return 0;
+	}
 
         struct c_byte c_byte[256];
         for (int i = 0; i < 256; i++) {

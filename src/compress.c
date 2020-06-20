@@ -5,16 +5,28 @@
 int main(int argc, char **argv)
 {
         if (argc != 3) {
-                printf("%s <filename> <dir>\n", argv[0]);
+                printf("%s <file in> <file out>\n", argv[0]);
                 return 0;
         }
 
+	FILE *f;
+
+	f = fopen(argv[1], "rb");
+	if (f == NULL) {
+		printf("%s does not exist!\n", argv[1]);
+		return 0;
+	}
+	fclose(f);
+
+	f = fopen(argv[2], "wb");
+	if (f == NULL) {
+		perror("");
+		return 0;
+	}
+	fclose(f);
+
         struct node **node = malloc(256 * sizeof *node);
         int num_nodes = set_value(argv[1], node);
-        if (num_nodes == -1) {
-                perror("");
-                return 0;
-        }
         struct node *root = build_tree(node, num_nodes); 
 
         struct c_byte c_byte[256];
@@ -76,9 +88,14 @@ struct node *build_tree(struct node *node[256], int num_nodes)
 
         if (num_nodes == 1)
                 for (int i = 0; i < 256; i++)
-                        if (node[i] != NULL)
-                                return node[i];
-                                
+                        if (node[i] != NULL) {
+                                struct node *parent = node_init(-1);
+                                parent->zero = node_init(0);
+                                parent->one = node[i];
+                                parent->value = parent->zero->value + parent->one->value;
+                                return parent;
+                        }
+
 
         for (int i = 0; i < num_nodes - 1; i++) {
                 int index = two_smallest(node, smallest);
